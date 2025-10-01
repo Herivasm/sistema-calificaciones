@@ -17,17 +17,19 @@
     <table border="1" cellpadding="10" cellspacing="0">
         <thead>
             <tr>
-                <th>ID</th>
+
                 <th>Nombre</th>
-                {{-- La columna 'Clave' fue eliminada de aquí --}}
+                <th>Descripción</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($carreras as $carrera)
                 <tr>
-                    <td>{{ $carrera->id }}</td>
+
                     <td>{{ $carrera->nombre }}</td>
+                    <td>{{ $carrera->descripcion }}</td>
+
                     <td>
                         {{-- Aquí irán los botones de Editar y Eliminar --}}
                         <a href="#">Editar</a> | <a href="#">Eliminar</a>

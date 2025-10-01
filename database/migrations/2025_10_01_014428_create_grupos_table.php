@@ -11,8 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('alumnos', function (Blueprint $table) {
+        Schema::create('grupos', function (Blueprint $table) {
             $table->id();
+               $table->string('nombre'); // Ej: "Grupo 101-A"
+
+        // Relaciones
+        $table->foreignId('materia_id')->constrained('materias');
+        $table->foreignId('cuatrimestre_id')->constrained('cuatrimestres');
+        // Podrías añadir un docente_id aquí si tuvieras una tabla de docentes
             $table->timestamps();
         });
     }
@@ -22,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('alumnos');
+        Schema::dropIfExists('grupos');
     }
 };

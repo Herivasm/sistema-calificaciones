@@ -3,17 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\CicloEscolar;
-
-class CicloEscolarController extends Controller
+use App\Models\Cuatrimestre;
+class CuatrimestreController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-         $ciclos = CicloEscolar::all();
-        return view('ciclos.index', compact('ciclos'));
+         $cuatrimestres = Cuatrimestre::all();
+        return view('cuatrimestres.index', compact('cuatrimestres'));
     }
 
     /**
@@ -21,7 +20,7 @@ class CicloEscolarController extends Controller
      */
     public function create()
     {
-         return view('ciclos.create');
+        return view('cuatrimestres.create');
     }
 
     /**
@@ -29,17 +28,24 @@ class CicloEscolarController extends Controller
      */
     public function store(Request $request)
     {
+       // Validación CORREGIDA: Incluye las fechas
         $request->validate([
-            'nombre' => 'required|unique:ciclo_escolars|max:255',
+            'nombre' => 'required|unique:cuatrimestres|max:255',
             'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after:fecha_inicio',
+            'fecha_fin' => 'required|date|after:fecha_inicio', // Asegura que la fecha final sea posterior
             'esta_activo' => 'boolean',
         ]);
 
-        CicloEscolar::create($request->all());
+        $cuatrimestre = Cuatrimestre::create($request->all());
 
-        return redirect()->route('ciclos_escolares.index')
-                         ->with('success', 'Ciclo Escolar registrado con éxito.');
+        // Lógica de activación (Solo uno activo)
+        if ($request->has('esta_activo') && $request->esta_activo) {
+            Cuatrimestre::where('id', '!=', $cuatrimestre->id)
+                        ->update(['esta_activo' => false]);
+        }
+
+        return redirect()->route('cuatrimestres.index')
+                         ->with('success', 'Cuatrimestre registrado con éxito.');
     }
 
     /**

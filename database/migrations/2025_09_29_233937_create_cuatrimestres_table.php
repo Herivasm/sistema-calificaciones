@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cuatrimestres', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+          $table->id();
+        $table->string('nombre')->unique();
+        $table->date('fecha_inicio');
+        $table->date('fecha_fin');
+        $table->boolean('esta_activo')->default(false);
+        $table->timestamps();
         });
     }
 
