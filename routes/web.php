@@ -25,3 +25,5 @@ Route::resource('alumnos', AlumnoController::class);
 Route::resource('materias', MateriaController::class);
 Route::resource('cuatrimestres', CuatrimestreController::class);
 Route::resource('grupos', GrupoController::class);
+Route::post('grupos/{grupo}/assign-students', [GrupoController::class, 'assignStudents'])
+    ->name('grupos.assign_students');
