@@ -15,21 +15,26 @@
     @csrf
 
     <div>
-        <strong>Nombre:</strong>
+        <strong>Nombre(s):</strong>
         <input type="text" name="nombre" value="{{ old('nombre') }}" required>
     </div>
+
     <div>
-        <strong>Apellido:</strong>
-        <input type="text" name="apellido" value="{{ old('apellido') }}" required>
+        <strong>Apellido Paterno:</strong>
+        <input type="text" name="apellido_paterno" value="{{ old('apellido_paterno') }}" required>
     </div>
+
+    <div>
+        <strong>Apellido Materno:</strong>
+        <input type="text" name="apellido_materno" value="{{ old('apellido_materno') }}">
+    </div>
+
     <div>
         <strong>Matrícula:</strong>
         <input type="text" name="matricula" value="{{ old('matricula') }}" required>
     </div>
-    <div>
-        <strong>Fecha de Nacimiento:</strong>
-        <input type="date" name="fecha_nacimiento" value="{{ old('fecha_nacimiento') }}">
-    </div>
+
+    {{-- CAMPO FECHA DE NACIMIENTO ELIMINADO --}}
 
     {{-- MENÚ DESPLEGABLE DE CARRERAS --}}
     <div>
@@ -61,3 +66,8 @@
 </form>
 
 <a href="{{ route('alumnos.index') }}">Volver al listado</a>
+```eof
+
+Con estos cambios, el formulario de registro de alumnos está limpio y cumple con los requisitos de la maestra.
+
+Ahora sí, podemos pasar a implementar las funciones de **Editar y Eliminar (CRUD completo)** para el módulo de **Carreras**.

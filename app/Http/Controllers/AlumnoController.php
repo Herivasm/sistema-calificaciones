@@ -35,12 +35,12 @@ class AlumnoController extends Controller
      */
     public function store(Request $request)
     {
-        // Validación de datos y claves foráneas
-        $request->validate([
+         $request->validate([
             'nombre' => 'required|string|max:255',
-            'apellido' => 'required|string|max:255',
+            'apellido_paterno' => 'required|string|max:255',
+            'apellido_materno' => 'nullable|string|max:255',
             'matricula' => 'required|unique:alumnos|max:20',
-            'fecha_nacimiento' => 'nullable|date',
+            // 'fecha_nacimiento' ELIMINADO de la validación
             'carrera_id' => 'required|exists:carreras,id',
             'ciclo_escolar_id' => 'required|exists:ciclo_escolars,id',
         ]);

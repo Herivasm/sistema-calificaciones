@@ -19,11 +19,26 @@
         <input type="text" name="nombre" placeholder="Ej: G-ISC-2A" value="{{ old('nombre') }}" required>
     </div>
 
+    {{-- MENÚ DE CARRERAS (CLAVE PARA FILTRAR ALUMNOS) --}}
+    <div>
+        <strong>Carrera del Grupo:</strong>
+        <select name="carrera_id" required>
+            <option value="">Seleccione la Carrera</option>
+            {{-- La variable $carreras viene del controlador --}}
+            @foreach ($carreras as $carrera)
+                <option value="{{ $carrera->id }}" {{ old('carrera_id') == $carrera->id ? 'selected' : '' }}>
+                    {{ $carrera->nombre }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
     {{-- MENÚ MATERIAS --}}
     <div>
         <strong>Materia:</strong>
         <select name="materia_id" required>
             <option value="">Seleccione una Materia</option>
+            {{-- La variable $materias viene del controlador --}}
             @foreach ($materias as $materia)
                 <option value="{{ $materia->id }}" {{ old('materia_id') == $materia->id ? 'selected' : '' }}>
                     {{ $materia->nombre }}
@@ -37,6 +52,7 @@
         <strong>Cuatrimestre:</strong>
         <select name="cuatrimestre_id" required>
             <option value="">Seleccione un Cuatrimestre</option>
+            {{-- La variable $cuatrimestres viene del controlador --}}
             @foreach ($cuatrimestres as $cuatrimestre)
                 <option value="{{ $cuatrimestre->id }}" {{ old('cuatrimestre_id') == $cuatrimestre->id ? 'selected' : '' }}>
                     {{ $cuatrimestre->nombre }}
@@ -46,6 +62,8 @@
     </div>
 
     <button type="submit">Guardar Grupo</button>
+
 </form>
 
 <a href="{{ route('grupos.index') }}">Volver al listado</a>
+

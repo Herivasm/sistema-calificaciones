@@ -12,9 +12,9 @@ class Alumno extends Model
     // Le decimos a Laravel qué campos puede guardar
     protected $fillable = [
         'nombre',
-        'apellido',
+        'apellido_paterno',
+        'apellido_materno',
         'matricula',
-        'fecha_nacimiento',
         'carrera_id',
         'ciclo_escolar_id'
     ];

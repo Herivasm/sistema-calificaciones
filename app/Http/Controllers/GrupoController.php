@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Grupo;
 use App\Models\Materia;
 use App\Models\Cuatrimestre;
-use App\Models\Alumno; // ¡Necesario para la Matriculación!
+use App\Models\Alumno;
+use App\Models\Carrera; // ¡Nueva importación necesaria para la lógica de Carrera!
 
 class GrupoController extends Controller
 {
@@ -15,7 +16,8 @@ class GrupoController extends Controller
      */
     public function index()
     {
-        $grupos = Grupo::with(['materia', 'cuatrimestre'])->get();
+        // Precarga todas las relaciones, incluyendo la nueva relación 'carrera'
+        $grupos = Grupo::with(['materia', 'cuatrimestre', 'carrera'])->get();
 
         return view('grupos.index', compact('grupos'));
     }
@@ -25,11 +27,12 @@ class GrupoController extends Controller
      */
     public function create()
     {
-        // Obtenemos los datos para los menús desplegables
+        // Obtenemos los datos para los menús desplegables, incluyendo Carreras
         $materias = Materia::all();
         $cuatrimestres = Cuatrimestre::all();
+        $carreras = Carrera::all(); // Nueva variable para el menú de carrera
 
-        return view('grupos.create', compact('materias', 'cuatrimestres'));
+        return view('grupos.create', compact('materias', 'cuatrimestres', 'carreras'));
     }
 
     /**
@@ -41,6 +44,7 @@ class GrupoController extends Controller
             'nombre' => 'required|max:255',
             'materia_id' => 'required|exists:materias,id',
             'cuatrimestre_id' => 'required|exists:cuatrimestres,id',
+            'carrera_id' => 'required|exists:carreras,id', // Nueva validación de carrera
         ]);
 
         Grupo::create($request->all());
@@ -51,15 +55,16 @@ class GrupoController extends Controller
 
     /**
      * Muestra la información de un grupo específico y la lista para matricular alumnos.
-     * Esto se usa para el formulario de Matricular.
+     * Esto se usa para el formulario de Matricular, donde se aplica el filtro por carrera.
      */
     public function show(string $id)
     {
-        // Precarga alumnos, materia y cuatrimestre
-        $grupo = Grupo::with(['materia', 'cuatrimestre', 'alumnos'])->findOrFail($id);
+        // Precarga todas las relaciones
+        $grupo = Grupo::with(['materia', 'cuatrimestre', 'carrera', 'alumnos'])->findOrFail($id);
 
-        // Obtener todos los alumnos disponibles para la lista de checkboxes
-        $alumnos_disponibles = Alumno::with('carrera')->get();
+        // FILTRO CLAVE: Obtiene solo los alumnos que pertenecen a la Carrera de este Grupo
+        $alumnos_disponibles = Alumno::where('carrera_id', $grupo->carrera_id)
+                                    ->get();
 
         // IDs de los alumnos actualmente matriculados
         $alumnos_matriculados_ids = $grupo->alumnos->pluck('id')->toArray();
@@ -77,11 +82,10 @@ class GrupoController extends Controller
         // 1. Validar la lista de alumnos a asignar
         $request->validate([
             'alumnos_ids' => 'nullable|array',
-            'alumnos_ids.*' => 'exists:alumnos,id', // Asegura que los IDs existen
+            'alumnos_ids.*' => 'exists:alumnos,id',
         ]);
 
         // 2. Sincronizar la Matrícula (Actualizar la tabla pivote 'alumno_grupo')
-        // sync() borra la lista anterior y guarda la nueva
         $grupo->alumnos()->sync($request->input('alumnos_ids', []));
 
         return redirect()->route('grupos.show', $grupo->id)

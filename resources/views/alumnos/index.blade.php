@@ -26,14 +26,28 @@
             @foreach ($alumnos as $alumno)
                 <tr>
                     <td>{{ $alumno->matricula }}</td>
-                    <td>{{ $alumno->nombre }} {{ $alumno->apellido }}</td>
+                    {{-- CORRECCIÓN CLAVE: Usamos los tres campos de nombre --}}
+                    <td>{{ $alumno->nombre }} {{ $alumno->apellido_paterno }} {{ $alumno->apellido_materno }}</td>
                     <td>{{ $alumno->carrera->nombre }}</td>
                     <td>{{ $alumno->cicloEscolar->nombre }}</td>
                     <td>
-                        <a href="#">Editar</a> | <a href="#">Eliminar</a>
+                        {{-- Enlace EDITAR (usaremos la ruta 'edit' cuando la implementemos) --}}
+                        <a href="#">Editar</a>
+
+                        |
+
+                        {{-- Botón ELIMINAR (usaremos un formulario POST para la seguridad) --}}
+                        <form action="#" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE') {{-- Método HTTP necesario para Laravel --}}
+                            <button type="submit" onclick="return confirm('¿Estás seguro de que quieres eliminar a este alumno?')" style="background:none; border:none; color:blue; cursor:pointer;">Eliminar</button>
+                        </form>
                     </td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 @endif
+```eof
+
+Ahora que el listado de **Alumnos** es robusto y hemos corregido el esquema de nombres, podemos pasar a implementar las funciones de **Editar y Eliminar** (CRUD completo) para todos tus módulos, comenzando por **Carreras**. ¿Empezamos con la edición y eliminación?
