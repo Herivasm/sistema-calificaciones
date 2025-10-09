@@ -11,7 +11,7 @@
     </div>
 @endif
 
-<form action="{{ route('ciclos_escolares.store') }}" method="POST">
+<form action="{{ route('ciclos.store') }}" method="POST">
     @csrf
 
     <div>
@@ -38,4 +38,4 @@
     <button type="submit">Guardar Ciclo</button>
 </form>
 
-<a href="{{ route('ciclos_escolares.index') }}">Volver al listado</a>
+<a href="{{ route('ciclos.index') }}">Volver al listado</a>

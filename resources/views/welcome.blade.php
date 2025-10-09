@@ -40,7 +40,7 @@
 
             {{-- MÓDULOS BASE (Tablas de Catálogo) --}}
             <li><a href="{{ route('carreras.index') }}">📚 Gestión de Carreras</a></li>
-            <li><a href="{{ route('ciclos_escolares.index') }}">📅 Gestión de Ciclos Escolares</a></li>
+            <li><a href="{{ route('ciclos.index') }}">📅 Gestión de Ciclos Escolares</a></li>
             <li><a href="{{ route('cuatrimestres.index') }}">🗓️ Gestión de Cuatrimestres</a></li>
             <li><a href="{{ route('materias.index') }}">📘 Gestión de Materias</a></li>
 

@@ -8,24 +8,24 @@ use App\Models\CicloEscolar;
 class CicloEscolarController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra la lista de todos los ciclos escolares.
      */
     public function index()
     {
-         $ciclos = CicloEscolar::all();
+        $ciclos = CicloEscolar::all();
         return view('ciclos.index', compact('ciclos'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Muestra el formulario para crear un nuevo ciclo escolar.
      */
     public function create()
     {
-         return view('ciclos.create');
+        return view('ciclos.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Guarda un nuevo ciclo escolar en la base de datos.
      */
     public function store(Request $request)
     {
@@ -36,41 +36,64 @@ class CicloEscolarController extends Controller
             'esta_activo' => 'boolean',
         ]);
 
-        CicloEscolar::create($request->all());
+        $ciclo = CicloEscolar::create($request->all());
 
-        return redirect()->route('ciclos_escolares.index')
+        // Lógica de activación: Si se marca activo, desactiva a todos los demás.
+        if ($request->has('esta_activo') && $request->esta_activo) {
+            CicloEscolar::where('id', '!=', $ciclo->id)
+                        ->update(['esta_activo' => false]);
+        }
+
+        return redirect()->route('ciclos.index')
                          ->with('success', 'Ciclo Escolar registrado con éxito.');
     }
 
     /**
-     * Display the specified resource.
+     * Muestra el formulario para editar un ciclo escolar específico.
+     * CORRECCIÓN: Usa $ciclo para Route Model Binding.
      */
-    public function show(string $id)
+    public function edit(CicloEscolar $ciclo)
     {
-        //
+        // Pasa la instancia $ciclo a la vista
+        return view('ciclos.edit', compact('ciclo'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Actualiza el registro de ciclo escolar en la base de datos.
+     * CORRECCIÓN: Recibe $ciclo.
      */
-    public function edit(string $id)
+    public function update(Request $request, CicloEscolar $ciclo)
     {
-        //
+        // 1. Validación (Usando $ciclo->id para ignorar el registro actual)
+        $request->validate([
+            'nombre' => 'required|max:255|unique:ciclo_escolars,nombre,' . $ciclo->id,
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date|after:fecha_inicio',
+            'esta_activo' => 'boolean',
+        ]);
+
+        // 2. Actualización del registro
+        $ciclo->update($request->all());
+
+        // 3. Lógica de activación (Si lo marcan como activo, desactiva a los demás)
+        if ($request->has('esta_activo') && $request->esta_activo) {
+            CicloEscolar::where('id', '!=', $ciclo->id)
+                        ->update(['esta_activo' => false]);
+        }
+
+        return redirect()->route('ciclos.index')
+                         ->with('success', 'Ciclo Escolar actualizado con éxito.');
     }
 
     /**
-     * Update the specified resource in storage.
+     * Elimina el registro de ciclo escolar.
+     * CORRECCIÓN: Recibe $ciclo.
      */
-    public function update(Request $request, string $id)
+    public function destroy(CicloEscolar $ciclo)
     {
-        //
-    }
+        $ciclo->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('ciclos.index')
+                         ->with('success', 'Ciclo Escolar eliminado con éxito.');
     }
 }

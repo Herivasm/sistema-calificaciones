@@ -20,7 +20,7 @@ Route::get('/', function () {
 
 
 Route::resource('carreras', CarreraController::class);
-Route::resource('ciclos_escolares', CicloEscolarController::class);
+Route::resource('ciclos', CicloEscolarController::class);
 Route::resource('alumnos', AlumnoController::class);
 Route::resource('materias', MateriaController::class);
 Route::resource('cuatrimestres', CuatrimestreController::class);

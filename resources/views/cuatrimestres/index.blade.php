@@ -32,7 +32,7 @@
                     <td>{{ $cuatrimestre->fecha_fin }}</td>
                     <td>{{ $cuatrimestre->esta_activo ? '✅ Activo' : '❌ Inactivo' }}</td>
                     <td>
-                        <a href="#">Editar</a> | <a href="#">Eliminar</a>
+                        <a href="{{ route('cuatrimestres.edit', $cuatrimestre->id) }}">Editar</a> | <a href="#">Eliminar</a>
                     </td>
                 </tr>
             @endforeach

@@ -49,24 +49,38 @@ class CarreraController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
-    }
+    public function edit(Carrera $carrera)
+{
 
+        return view('carreras.edit', compact('carrera'));
+}
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+   public function update(Request $request, Carrera $carrera)
     {
-        //
+        $request->validate([
+            // CORREGIDO: Usando descripcion en la validación
+            'nombre' => 'required|max:255|unique:carreras,nombre,' . $carrera->id,
+            'descripcion' => 'nullable|max:255',
+        ]);
+
+        $carrera->update($request->all());
+
+        return redirect()->route('carreras.index')
+                         ->with('success', 'Carrera actualizada con éxito.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
-    }
+    public function destroy(Carrera $carrera)
+{
+    // Esto funciona porque ya configuramos la tabla de alumnos para 'onDelete('cascade')'
+    // en la migración, lo cual ayuda a evitar errores de claves foráneas.
+    $carrera->delete();
+
+    return redirect()->route('carreras.index')
+                     ->with('success', 'Carrera eliminada con éxito.');
+}
 }

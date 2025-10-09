@@ -59,24 +59,39 @@ class CuatrimestreController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+     public function edit(Cuatrimestre $cuatrimestre)
     {
-        //
+        return view('cuatrimestres.edit', compact('cuatrimestre'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Cuatrimestre $cuatrimestre)
     {
-        //
+        // Validación
+        $request->validate([
+            'nombre' => 'required|max:255|unique:cuatrimestres,nombre,' . $cuatrimestre->id,
+            'esta_activo' => 'boolean', // Solo validamos que sea booleano
+        ]);
+
+        $cuatrimestre->update($request->all());
+
+        // LÓGICA CLAVE: NO DESACTIVAMOS A OTROS. Se permite que varios estén activos.
+
+        return redirect()->route('cuatrimestres.index')
+                         ->with('success', 'Cuatrimestre actualizado con éxito.');
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+   public function destroy(Cuatrimestre $cuatrimestre)
     {
-        //
+        $cuatrimestre->delete();
+
+        return redirect()->route('cuatrimestres.index')
+                         ->with('success', 'Cuatrimestre eliminado con éxito.');
     }
 }
