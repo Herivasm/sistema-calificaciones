@@ -62,24 +62,44 @@ class AlumnoController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Alumno $alumno)
     {
-        //
-    }
+        // Se necesitan todas las carreras y ciclos para los menús desplegables
+        $carreras = Carrera::all();
+        $ciclos = CicloEscolar::all();
 
+        return view('alumnos.edit', compact('alumno', 'carreras', 'ciclos'));
+    }
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Alumno $alumno)
     {
-        //
-    }
+        // Validación: Matricula debe ser única, excluyendo el alumno actual.
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido_paterno' => 'required|string|max:255',
+            'apellido_materno' => 'nullable|string|max:255',
+            'matricula' => 'required|max:20|unique:alumnos,matricula,' . $alumno->id,
+            'carrera_id' => 'required|exists:carreras,id',
+            'ciclo_escolar_id' => 'required|exists:ciclo_escolars,id',
+        ]);
 
+        $alumno->update($request->all());
+
+        return redirect()->route('alumnos.index')
+                         ->with('success', 'Alumno actualizado con éxito.');
+    }
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+        public function destroy(Alumno $alumno)
     {
-        //
+        // Si el alumno está matriculado en un grupo, la clave foránea podría generar un error.
+        // Asumiendo que la relación en la tabla pivote es CASCADE, se elimina automáticamente.
+        $alumno->delete();
+
+        return redirect()->route('alumnos.index')
+                         ->with('success', 'Alumno eliminado con éxito.');
     }
 }

@@ -32,7 +32,7 @@
                     <td>{{ $alumno->cicloEscolar->nombre }}</td>
                     <td>
                         {{-- Enlace EDITAR (usaremos la ruta 'edit' cuando la implementemos) --}}
-                        <a href="#">Editar</a>
+                        <a href="{{ route('alumnos.edit', $alumno->id) }}">Editar</a>
 
                         |
 

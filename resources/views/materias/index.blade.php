@@ -38,7 +38,7 @@
                         @endforelse
                     </td>
                     <td>
-                        <a href="#">Editar</a> |
+                        <a href="{{ route('materias.edit', $materia->id) }}">Editar</a>
                         <a href="#">Eliminar</a>
                     </td>
                 </tr>

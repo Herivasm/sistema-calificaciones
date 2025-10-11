@@ -95,7 +95,37 @@ class GrupoController extends Controller
     /**
      * El resto de métodos (edit, update, destroy) se implementarán más tarde.
      */
-     public function edit(string $id) { /* ... */ }
-     public function update(Request $request, string $id) { /* ... */ }
-     public function destroy(string $id) { /* ... */ }
+      public function edit(Grupo $grupo)
+    {
+        // Necesitas todas las Carreras, Materias y Cuatrimestres para los menús desplegables
+        $carreras = Carrera::all();
+        $materias = Materia::all();
+        $cuatrimestres = Cuatrimestre::all();
+
+        return view('grupos.edit', compact('grupo', 'carreras', 'materias', 'cuatrimestres'));
+    }
+    public function update(Request $request, Grupo $grupo)
+    {
+        // Validación: El nombre debe ser único, excluyendo el grupo actual
+        $request->validate([
+            'nombre' => 'required|max:255|unique:grupos,nombre,' . $grupo->id,
+            'materia_id' => 'required|exists:materias,id',
+            'cuatrimestre_id' => 'required|exists:cuatrimestres,id',
+            'carrera_id' => 'required|exists:carreras,id',
+        ]);
+
+        $grupo->update($request->all());
+
+        return redirect()->route('grupos.index')
+                         ->with('success', 'Grupo actualizado con éxito.');
+    }
+      public function destroy(Grupo $grupo)
+    {
+        // Esto elimina el grupo y, gracias a la configuración de la tabla pivote,
+        // también elimina todas las matrículas asociadas en alumno_grupo.
+        $grupo->delete();
+
+        return redirect()->route('grupos.index')
+                         ->with('success', 'Grupo eliminado con éxito.');
+    }
 }

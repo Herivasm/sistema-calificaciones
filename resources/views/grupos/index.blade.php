@@ -31,7 +31,7 @@
                     <td>{{ $grupo->cuatrimestre->nombre }}</td>
                     <td>
                         <a href="{{ route('grupos.show', $grupo->id) }}">Matricular</a> |
-                        <a href="#">Editar</a> | <a href="#">Eliminar</a>
+                        <a href="{{ route('grupos.edit', $grupo->id) }}">Editar</a>| <a href="#">Eliminar</a>
                     </td>
                 </tr>
             @endforeach

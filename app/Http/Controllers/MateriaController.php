@@ -66,7 +66,41 @@ class MateriaController extends Controller
      * El resto de métodos (show, edit, update, destroy) se implementarán más tarde.
      */
      public function show(string $id) { /* ... */ }
-     public function edit(string $id) { /* ... */ }
-     public function update(Request $request, string $id) { /* ... */ }
-     public function destroy(string $id) { /* ... */ }
+      public function edit(Materia $materia)
+    {
+        // Necesitas todas las Carreras para el formulario de selección múltiple.
+        $carreras = Carrera::all();
+
+        return view('materias.edit', compact('materia', 'carreras'));
+    }
+     public function update(Request $request, Materia $materia)
+    {
+        // 1. Validación
+        $request->validate([
+            // Valida que el nombre sea único, excluyendo la materia actual
+            'nombre' => 'required|max:255|unique:materias,nombre,' . $materia->id,
+            // Validación de las carreras
+            'carreras' => 'required|array',
+            'carreras.*' => 'exists:carreras,id',
+        ]);
+
+        // 2. Actualizar el nombre de la materia
+        $materia->update(['nombre' => $request->input('nombre')]);
+
+        // 3. CLAVE: Sincronizar la relación Muchos a Muchos
+        // sync() elimina las asociaciones antiguas en la tabla pivote y añade las nuevas.
+        $materia->carreras()->sync($request->input('carreras'));
+
+        return redirect()->route('materias.index')
+                         ->with('success', 'Materia y asociaciones actualizadas con éxito.');
+    }
+
+     public function destroy(Materia $materia)
+    {
+        // Al eliminar la materia, las entradas en la tabla pivote se eliminan automáticamente.
+        $materia->delete();
+
+        return redirect()->route('materias.index')
+                         ->with('success', 'Materia eliminada con éxito.');
+    }
 }
