@@ -1,8 +1,4 @@
-## 2. Formulario de Edición (`alumnos/edit.blade.php`)
 
-Este formulario precarga los datos del alumno, maneja los tres campos de nombre, las relaciones y el estado activo/inactivo.
-
-```php:Formulario Editar Alumno:resources/views/alumnos/edit.blade.php
 <h1>Editar Alumno: {{ $alumno->nombre }} {{ $alumno->apellido_paterno }}</h1>
 
 @if ($errors->any())
@@ -84,8 +80,4 @@ Este formulario precarga los datos del alumno, maneja los tres campos de nombre,
 </form>
 
 <a href="{{ route('alumnos.index') }}">Volver al listado</a>
-```eof
 
----
-
-Ahora que el CRUD de **Alumnos** está 100% completo, el siguiente paso es el **Módulo de Calificaciones**. ¿Estás listo para definir la tabla de Calificaciones?
