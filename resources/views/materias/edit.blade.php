@@ -20,14 +20,29 @@
         <input type="text" name="nombre" value="{{ old('nombre', $materia->nombre) }}" required>
     </div>
 
+    {{-- CAMPO OCULTO (CLAVE): Asegura que se envíe '0' si el checkbox no está marcado --}}
+    <input type="hidden" name="esta_activo" value="0">
+
+    <div>
+        <strong>Activo:</strong>
+        <input type="checkbox" name="esta_activo" value="1" @checked(old('esta_activo', $materia->esta_activo))>
+    </div>
+
+    <hr>
+
     {{-- MENÚ DE SELECCIÓN MÚLTIPLE DE CARRERAS --}}
     <div>
         <strong>Carreras Asociadas:</strong>
         <select name="carreras[]" multiple required>
+            {{-- Obtener los IDs de las carreras asociadas a esta materia --}}
+            @php
+                $currentCarreraIds = old('carreras') ?: $materia->carreras->pluck('id')->toArray();
+            @endphp
+
             @foreach ($carreras as $carrera)
                 <option value="{{ $carrera->id }}"
-                    {{-- CLAVE: Comprueba si la materia ya tiene esta carrera asignada --}}
-                    @if (old('carreras') ? in_array($carrera->id, old('carreras')) : $materia->carreras->contains($carrera->id))
+                    {{-- Marcar la opción si el ID está en el array de carreras asociadas --}}
+                    @if (in_array($carrera->id, $currentCarreraIds))
                         selected
                     @endif
                 >
@@ -35,7 +50,7 @@
                 </option>
             @endforeach
         </select>
-        <small>Mantén presionado Ctrl (Windows) / Cmd (Mac) para seleccionar varias carreras.</small>
+        <small>Ctrl (Windows) / Cmd (Mac) para seleccionar varias.</small>
     </div>
 
     <button type="submit">Actualizar Materia</button>

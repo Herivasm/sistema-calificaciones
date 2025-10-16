@@ -9,8 +9,8 @@ class Carrera extends Model
 {
     use HasFactory;
 
-    // Indica qué campos se pueden guardar (como lo dejaste)
-    protected $fillable = ['nombre', 'descripcion'];
+    // CORRECCIÓN: Añadimos 'esta_activo' para que el controlador pueda cambiar su estado (desactivación lógica)
+    protected $fillable = ['nombre', 'descripcion', 'esta_activo'];
 
     // --- Relaciones de Muchos a Muchos ---
 

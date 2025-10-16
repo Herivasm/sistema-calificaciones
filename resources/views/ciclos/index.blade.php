@@ -50,12 +50,3 @@
         </tbody>
     </table>
 @endif
-```eof
-
-**Pasos Finales para el Módulo:**
-
-1.  **Guarda** el `index.blade.php` con la corrección del enlace.
-2.  **Limpia el caché** (`php artisan route:clear` y `php artisan cache:clear`).
-3.  **Reinicia el servidor** (`php artisan serve`).
-
-Esto debería resolver el error de enrutamiento que venía del listado. Una vez que funcione, ¡podemos pasar al módulo de **Cuatrimestres**!

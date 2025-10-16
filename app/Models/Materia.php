@@ -9,21 +9,21 @@ class Materia extends Model
 {
     use HasFactory;
 
-    // Solo necesitamos 'nombre' ya que eliminaste 'creditos' y la clave foránea 'carrera_id'.
-    protected $fillable = ['nombre'];
+    // CORRECCIÓN: 'esta_activo' DEBE estar en $fillable para ser actualizado
+    protected $fillable = ['nombre', 'esta_activo'];
 
-    // --- Relaciones de Muchos a Muchos ---
+    // CLAVE: Asegura que el valor de la base de datos sea tratado como booleano (true/false)
+    protected $casts = [
+        'esta_activo' => 'boolean',
+    ];
 
     /**
      * Una Materia pertenece a muchas Carreras.
-     * Esta relación usa la tabla pivote 'carrera_materia'.
      */
     public function carreras()
     {
         return $this->belongsToMany(Carrera::class, 'carrera_materia', 'materia_id', 'carrera_id');
     }
-
-    // --- Relaciones de Uno a Muchos ---
 
     /**
      * Una Materia puede tener varios Grupos.

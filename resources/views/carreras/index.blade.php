@@ -1,7 +1,6 @@
-<h1>Gestión de Carreras</h1>
+<h1>Listado de Carreras</h1>
 
 <a href="{{ route('carreras.create') }}">Crear Nueva Carrera</a>
-<br><br>
 
 @if ($message = Session::get('success'))
     <div style="color: green;">
@@ -9,40 +8,58 @@
     </div>
 @endif
 
-@if($carreras->isEmpty())
-    <p>No hay carreras registradas.</p>
-@else
-    <table border="1" cellpadding="10" cellspacing="0">
-        <thead>
+<table border="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ($carreras as $carrera)
             <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($carreras as $carrera)
-                <tr>
-                    <td>{{ $carrera->id }}</td>
-                    <td>{{ $carrera->nombre }}</td>
-                    <td>{{ $carrera->descripcion }}</td>
-                    <td>
-                        {{-- Enlace EDITAR (Usa la ruta 'edit' con el ID de la carrera) --}}
-                        <a href="{{ route('carreras.edit', $carrera->id) }}">Editar</a>
+                <td>{{ $carrera->id }}</td>
+                <td>{{ $carrera->nombre }}</td>
+                <td>{{ $carrera->descripcion }}</td>
 
-                        |
+                {{-- Muestra el estado --}}
+                <td>
+                    @if ($carrera->esta_activo)
+                        <span style="color: green;">✅ Activa</span>
+                    @else
+                        <span style="color: red;">❌ Desactivada</span>
+                    @endif
+                </td>
 
-                        {{-- Formulario ELIMINAR (Usa la ruta 'destroy' con el método DELETE) --}}
+                <td>
+                    <a href="{{ route('carreras.edit', $carrera->id) }}">Editar</a>
+                    |
+
+                    @if ($carrera->esta_activo)
+                        {{-- Opción para DESACTIVAR (usa el método DELETE/destroy) --}}
                         <form action="{{ route('carreras.destroy', $carrera->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" onclick="return confirm('¿Estás seguro de que quieres eliminar esta carrera? Esta acción podría eliminar alumnos y materias relacionadas.')" style="background:none; border:none; color:blue; cursor:pointer;">Eliminar</button>
+                            <button type="submit" onclick="return confirm('¿Estás seguro de que quieres DESACTIVAR esta carrera?')" style="background:none; border:none; color:red; cursor:pointer;">Desactivar</button>
                         </form>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-@endif
+                    @else
+                        {{-- Opción para REACTIVAR (usa el método PUT/update para cambiar el estado) --}}
+                        <form action="{{ route('carreras.update', $carrera->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('PUT')
+                            {{-- CORRECCIÓN CLAVE: Campos ocultos para pasar la validación --}}
+                            <input type="hidden" name="esta_activo" value="1">
+                            <input type="hidden" name="nombre" value="{{ $carrera->nombre }}">
+                            <input type="hidden" name="descripcion" value="{{ $carrera->descripcion }}">
 
+                            <button type="submit" onclick="return confirm('¿Estás seguro de que quieres REACTIVAR esta carrera?')" style="background:none; border:none; color:blue; cursor:pointer;">Reactivar</button>
+                        </form>
+                    @endif
+                </td>
+            </tr>
+        @endforeach
+    </tbody>
+</table>

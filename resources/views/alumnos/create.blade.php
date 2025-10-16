@@ -66,8 +66,3 @@
 </form>
 
 <a href="{{ route('alumnos.index') }}">Volver al listado</a>
-```eof
-
-Con estos cambios, el formulario de registro de alumnos está limpio y cumple con los requisitos de la maestra.
-
-Ahora sí, podemos pasar a implementar las funciones de **Editar y Eliminar (CRUD completo)** para el módulo de **Carreras**.

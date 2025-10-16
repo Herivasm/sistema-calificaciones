@@ -7,7 +7,7 @@ use App\Models\Grupo;
 use App\Models\Materia;
 use App\Models\Cuatrimestre;
 use App\Models\Alumno;
-use App\Models\Carrera; // ¡Nueva importación necesaria para la lógica de Carrera!
+use App\Models\Carrera;
 
 class GrupoController extends Controller
 {
@@ -16,9 +16,8 @@ class GrupoController extends Controller
      */
     public function index()
     {
-        // Precarga todas las relaciones, incluyendo la nueva relación 'carrera'
+        // Traemos todos los grupos (el índice debe mostrar el estado)
         $grupos = Grupo::with(['materia', 'cuatrimestre', 'carrera'])->get();
-
         return view('grupos.index', compact('grupos'));
     }
 
@@ -27,10 +26,9 @@ class GrupoController extends Controller
      */
     public function create()
     {
-        // Obtenemos los datos para los menús desplegables, incluyendo Carreras
         $materias = Materia::all();
         $cuatrimestres = Cuatrimestre::all();
-        $carreras = Carrera::all(); // Nueva variable para el menú de carrera
+        $carreras = Carrera::all();
 
         return view('grupos.create', compact('materias', 'cuatrimestres', 'carreras'));
     }
@@ -41,12 +39,12 @@ class GrupoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|max:255',
+            'nombre' => 'required|max:255|unique:grupos',
             'materia_id' => 'required|exists:materias,id',
             'cuatrimestre_id' => 'required|exists:cuatrimestres,id',
-            'carrera_id' => 'required|exists:carreras,id', // Nueva validación de carrera
+            'carrera_id' => 'required|exists:carreras,id',
         ]);
-
+        // CLAVE: El campo 'esta_activo' se establecerá a TRUE por defecto en el modelo/migración
         Grupo::create($request->all());
 
         return redirect()->route('grupos.index')
@@ -54,38 +52,33 @@ class GrupoController extends Controller
     }
 
     /**
-     * Muestra la información de un grupo específico y la lista para matricular alumnos.
-     * Esto se usa para el formulario de Matricular, donde se aplica el filtro por carrera.
+     * Muestra la lista para matricular alumnos (Filtra por carrera).
      */
     public function show(string $id)
     {
-        // Precarga todas las relaciones
         $grupo = Grupo::with(['materia', 'cuatrimestre', 'carrera', 'alumnos'])->findOrFail($id);
 
         // FILTRO CLAVE: Obtiene solo los alumnos que pertenecen a la Carrera de este Grupo
         $alumnos_disponibles = Alumno::where('carrera_id', $grupo->carrera_id)
-                                    ->get();
+                                     ->get();
 
-        // IDs de los alumnos actualmente matriculados
         $alumnos_matriculados_ids = $grupo->alumnos->pluck('id')->toArray();
 
         return view('grupos.show', compact('grupo', 'alumnos_disponibles', 'alumnos_matriculados_ids'));
     }
 
     /**
-     * Procesa la solicitud para asignar alumnos a un grupo (Guardar Matrícula).
+     * Procesa la solicitud para asignar alumnos a un grupo.
      */
     public function assignStudents(Request $request, string $id)
     {
         $grupo = Grupo::findOrFail($id);
 
-        // 1. Validar la lista de alumnos a asignar
         $request->validate([
             'alumnos_ids' => 'nullable|array',
             'alumnos_ids.*' => 'exists:alumnos,id',
         ]);
 
-        // 2. Sincronizar la Matrícula (Actualizar la tabla pivote 'alumno_grupo')
         $grupo->alumnos()->sync($request->input('alumnos_ids', []));
 
         return redirect()->route('grupos.show', $grupo->id)
@@ -93,39 +86,50 @@ class GrupoController extends Controller
     }
 
     /**
-     * El resto de métodos (edit, update, destroy) se implementarán más tarde.
+     * Muestra el formulario para editar un grupo específico.
      */
-      public function edit(Grupo $grupo)
+    public function edit(Grupo $grupo)
     {
-        // Necesitas todas las Carreras, Materias y Cuatrimestres para los menús desplegables
         $carreras = Carrera::all();
         $materias = Materia::all();
         $cuatrimestres = Cuatrimestre::all();
 
         return view('grupos.edit', compact('grupo', 'carreras', 'materias', 'cuatrimestres'));
     }
+
+    /**
+     * Actualiza el grupo en la base de datos (Usado para Edición y Reactivación).
+     */
     public function update(Request $request, Grupo $grupo)
     {
-        // Validación: El nombre debe ser único, excluyendo el grupo actual
         $request->validate([
             'nombre' => 'required|max:255|unique:grupos,nombre,' . $grupo->id,
             'materia_id' => 'required|exists:materias,id',
             'cuatrimestre_id' => 'required|exists:cuatrimestres,id',
             'carrera_id' => 'required|exists:carreras,id',
+            'esta_activo' => 'boolean', // Permite que el estado sea enviado
         ]);
 
-        $grupo->update($request->all());
+        // 1. Preparar datos de actualización
+        $data = $request->except(['_token', '_method']);
+        $data['esta_activo'] = $request->boolean('esta_activo'); // CLAVE: Obtiene el estado del checkbox/hidden
+
+        // 2. Actualización
+        $grupo->update($data);
 
         return redirect()->route('grupos.index')
                          ->with('success', 'Grupo actualizado con éxito.');
     }
-      public function destroy(Grupo $grupo)
+
+    /**
+     * Desactiva (Elimina Suavemente) un grupo (usado por el botón 'Desactivar').
+     */
+    public function destroy(Grupo $grupo)
     {
-        // Esto elimina el grupo y, gracias a la configuración de la tabla pivote,
-        // también elimina todas las matrículas asociadas en alumno_grupo.
-        $grupo->delete();
+        // Desactivamos el grupo cambiando 'esta_activo' a FALSE
+        $grupo->update(['esta_activo' => false]);
 
         return redirect()->route('grupos.index')
-                         ->with('success', 'Grupo eliminado con éxito.');
+                         ->with('success', 'Grupo desactivado con éxito.');
     }
 }

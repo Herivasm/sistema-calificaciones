@@ -4,94 +4,73 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Cuatrimestre;
+
 class CuatrimestreController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra la lista de TODOS los cuatrimestres, activos e inactivos.
      */
     public function index()
     {
-         $cuatrimestres = Cuatrimestre::all();
+        // Traemos todos los registros para mostrar el estado Activo/Inactivo
+        $cuatrimestres = Cuatrimestre::all();
         return view('cuatrimestres.index', compact('cuatrimestres'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('cuatrimestres.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Guarda un nuevo cuatrimestre sin modificar el estado de otros.
      */
     public function store(Request $request)
     {
-       // Validación CORREGIDA: Incluye las fechas
         $request->validate([
             'nombre' => 'required|unique:cuatrimestres|max:255',
             'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after:fecha_inicio', // Asegura que la fecha final sea posterior
-            'esta_activo' => 'boolean',
+            'fecha_fin' => 'required|date|after:fecha_inicio',
+            // 'esta_activo' puede ser opcional si se maneja en el modelo/migración
         ]);
 
-        $cuatrimestre = Cuatrimestre::create($request->all());
-
-        // Lógica de activación (Solo uno activo)
-        if ($request->has('esta_activo') && $request->esta_activo) {
-            Cuatrimestre::where('id', '!=', $cuatrimestre->id)
-                        ->update(['esta_activo' => false]);
-        }
+        // NO se agrega lógica para desactivar otros cuatrimestres.
+        Cuatrimestre::create($request->all());
 
         return redirect()->route('cuatrimestres.index')
                          ->with('success', 'Cuatrimestre registrado con éxito.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-     public function edit(Cuatrimestre $cuatrimestre)
+    public function edit(Cuatrimestre $cuatrimestre)
     {
         return view('cuatrimestres.edit', compact('cuatrimestre'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Cuatrimestre $cuatrimestre)
     {
-        // Validación
         $request->validate([
             'nombre' => 'required|max:255|unique:cuatrimestres,nombre,' . $cuatrimestre->id,
-            'esta_activo' => 'boolean', // Solo validamos que sea booleano
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date|after:fecha_inicio',
+            'esta_activo' => 'boolean',
         ]);
 
+        // Con el campo hidden en la vista edit, esto funciona correctamente.
         $cuatrimestre->update($request->all());
-
-        // LÓGICA CLAVE: NO DESACTIVAMOS A OTROS. Se permite que varios estén activos.
 
         return redirect()->route('cuatrimestres.index')
                          ->with('success', 'Cuatrimestre actualizado con éxito.');
     }
 
-
     /**
-     * Remove the specified resource from storage.
+     * Desactiva lógicamente el registro.
      */
-   public function destroy(Cuatrimestre $cuatrimestre)
+    public function destroy(Cuatrimestre $cuatrimestre)
     {
-        $cuatrimestre->delete();
+        // Desactivamos el cuatrimestre cambiando 'esta_activo' a FALSE
+        $cuatrimestre->update(['esta_activo' => false]);
 
         return redirect()->route('cuatrimestres.index')
-                         ->with('success', 'Cuatrimestre eliminado con éxito.');
+                         ->with('success', 'Cuatrimestre desactivado con éxito.');
     }
 }
